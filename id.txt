@@ -1,0 +1,4 @@
+api website : https://manage.exchangeratesapi.io
+key : 	fb058fd39bfd036f058bfc39683009f7
+website : http://127.0.0.1:5500/index.html
+mdp : T3wWMT@nwm4XF_w

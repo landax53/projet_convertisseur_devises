@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 20px auto;
+            width: 95%;
+        }
+        main {
+            background-color: rgb(207, 207, 134);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-radius: 15px;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            /* border: 1px black solid; */
+            padding: 20px
+        }
+
+        #convertisseur {
+            padding: 30px;
+
+            /* border: 1px black solid; */
+            display: flex;
+            width: 90%;
+            background-color: rgb(240, 240, 195);
+            border-radius: 15px;
+            margin: 10px;
+            
+        }
+
+        #deviseEntrée {
+            flex: 1;
+        }
+
+        #deviseEntrée input {
+            outline: none;
+            border: none
+        }
+
+        #submitButton {
+            background-color: rgb(255, 163, 130);
+            height : 30px;
+            width: 100px;
+            border-radius: 10px;
+        }
+
+        #submitButton:hover {
+            box-shadow: 0 0 5px crimson;
+            transition: .4s ease;
+        }      
+
+        #deviseEntrée input:focus {
+            color: red 
+        }      
+
+
+
+
+        #deviseSortie {
+            flex: 1;
+            display: flex;
+            background-color: rgb(255, 255, 255);
+            border-radius: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+
+</head>
+<body>
+    <main>
+        <h1>Convertisseur de monnaie</h1>
+        <div id="convertisseur">
+            <div id="deviseEntrée">
+                <form id="form">
+                    <label for="amount">Votre montant</label>
+                    <input type="number" placeholder="..." id="amount" autofocus required/>
+                    <select id="deviseInput"></select><br>
+                    <label for="deviseOutput">Dans quelle devise voulez-vous convertir?</label>
+                    <select name="deviseOutput" id="deviseOutput"></select>
+                    <input type="submit" id='submitButton' value='Convertir'>
+                </form>
+            </div>
+            <div id="deviseSortie">
+                <div id='baseOutput'></div>
+                <div id="dateOutput"></div>
+                <div id="timestampOutput"></div>
+                <div id="ratesOutput"></div>
+                <div id="amountOutput"></div>
+            </div>
+        </div>
+    </main>
+    
+
+<script>
+
+    const api_url = 'http://api.exchangeratesapi.io/v1/latest?access_key=fb058fd39bfd036f058bfc39683009f7&format=1'
+  
+    async function getAPIData() {
+        const response = await fetch(api_url)
+        const data = await response.json();
+        const { base, date, timestamp, rates } = data;
+
+        // document.getElementById('baseOutput').textContent = base;
+        // document.getElementById('dateOutput').textContent = date;
+        // document.getElementById('timestampOutput').textContent = timestamp;
+
+        let ratesArray = Object.keys(rates);
+        let valuesArray = Object.values(rates)
+
+        console.log(valuesArray)
+
+        let deviseInput = document.getElementById('deviseInput')
+        let deviseOutput = document.getElementById('deviseOutput')
+
+        let deviseMap = ratesArray.map((x,index) => (
+            `<option key=${index} value="${x}">${x}</option>`
+        ))
+
+        deviseInput.innerHTML = deviseMap
+        deviseOutput.innerHTML = deviseMap
+       
+  
+
+        let form = document.getElementById('submitButton')
+
+        form.addEventListener('click', (e) => {
+            e.preventDefault()
+            const ratesOutput = valuesArray[ratesArray.indexOf(deviseOutput.value)]
+            const ratesInput = valuesArray[ratesArray.indexOf(deviseInput.value)]
+            console.log(ratesOutput)
+
+            let amount = document.getElementById('amount').value
+            const amountOutput = document.getElementById('amountOutput')
+            
+            let amountResult = amount /ratesInput * ratesOutput   
+            amountOutput.innerHTML = `<p>${amountResult.toFixed(2)} ${deviseOutput.value}</p>`         
+
+
+        })
+
+    }
+    getAPIData()
+
+
+</script>
+
+
+
+</script>
+</body>
+</html>
