@@ -17,13 +17,14 @@
             width: 95%;
         }
         main {
-            background-color: rgb(207, 207, 134);
+            /* background-color: rgb(207, 207, 134); */
             padding: 10px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             border-radius: 15px;
             align-items: center;
+
         }
 
         h1 {
@@ -38,7 +39,7 @@
             /* border: 1px black solid; */
             display: flex;
             width: 90%;
-            background-color: rgb(240, 240, 195);
+            /* background-color: rgb(240, 240, 195); */
             border-radius: 15px;
             margin: 10px;
             
@@ -65,21 +66,53 @@
             transition: .4s ease;
         }      
 
+        #submitButton:active {
+            color: black
+        }
+
         #deviseEntrée input:focus {
             color: red 
         }      
 
 
-
-
         #deviseSortie {
+            position: relative;
             flex: 1;
             display: flex;
-            background-color: rgb(255, 255, 255);
+            /* background-color: rgb(255, 255, 255); */
             border-radius: 15px;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
+            font-weight: 600;
+            font-size: 40px;
         }
+
+        #deviseSortie:hover {
+            text-shadow: 0px 0px 10px white;
+            
+        }
+
+        #deviseSortie::before {
+            background-image: url(./img/langfr-225px-Flag_of_the_United_Arab_Emirates.svg.png);
+            content: '';
+            width: 0%;
+            height: 600%;
+            transition: all ease-in 1s;
+            position: absolute;
+            transform: translate(-50%,-50%) rotate(45deg);
+            z-index: -1;
+            top: 50%;
+            left: 50%;
+        }
+
+        #deviseSortie:hover::before {
+            width: 100%;
+        }
+
+
+
+
     </style>
 
 </head>
@@ -93,7 +126,7 @@
                     <input type="number" placeholder="..." id="amount" autofocus required/>
                     <select id="deviseInput"></select><br>
                     <label for="deviseOutput">Dans quelle devise voulez-vous convertir?</label>
-                    <select name="deviseOutput" id="deviseOutput"></select>
+                    <select name="deviseOutput" id="deviseOutput"></select><br>
                     <input type="submit" id='submitButton' value='Convertir'>
                 </form>
             </div>
@@ -105,17 +138,34 @@
                 <div id="amountOutput"></div>
             </div>
         </div>
+
+        <!-- <div id="taux_hitorique">
+            <div id="base">
+                <form id="form_histo">
+                    <label for="devise_base">Quelle est votre base?</label>
+                    <select name="devise_base" id="devise_base" required></select><br>
+                    <label for="devise_symbols">Quels taux voulez-vous comparer ?</label>
+                    <select name="devise_symbols" id="devise_symbols" required></select><br>
+                    <label for="devise_date">A quelle date ?</label>
+                    <input type="date" id="devise_date" required>
+                    <input type="submit">
+                </form>
+            </div>
+
+            <div id="resultHistorique"></div>
+        </div> -->
+
     </main>
     
 
-<script>
+<script> //-------------------SCRIPT------------------------//
 
-    const api_url = 'http://api.exchangeratesapi.io/v1/latest?access_key=fb058fd39bfd036f058bfc39683009f7&format=1'
+    const api_url_latest = 'http://api.exchangeratesapi.io/v1/latest?access_key=fb058fd39bfd036f058bfc39683009f7&format=1'
   
     async function getAPIData() {
-        const response = await fetch(api_url)
+        const response = await fetch(api_url_latest)
         const data = await response.json();
-        const { base, date, timestamp, rates } = data;
+        const { timestamp, rates } = data;
 
         // document.getElementById('baseOutput').textContent = base;
         // document.getElementById('dateOutput').textContent = date;
@@ -124,7 +174,7 @@
         let ratesArray = Object.keys(rates);
         let valuesArray = Object.values(rates)
 
-        console.log(valuesArray)
+        // console.log(valuesArray)
 
         let deviseInput = document.getElementById('deviseInput')
         let deviseOutput = document.getElementById('deviseOutput')
@@ -136,15 +186,13 @@
         deviseInput.innerHTML = deviseMap
         deviseOutput.innerHTML = deviseMap
        
-  
+        let form = document.getElementById('form')
 
-        let form = document.getElementById('submitButton')
-
-        form.addEventListener('click', (e) => {
+        form.addEventListener('submit', function(e) {
             e.preventDefault()
             const ratesOutput = valuesArray[ratesArray.indexOf(deviseOutput.value)]
             const ratesInput = valuesArray[ratesArray.indexOf(deviseInput.value)]
-            console.log(ratesOutput)
+            // console.log(ratesOutput)
 
             let amount = document.getElementById('amount').value
             const amountOutput = document.getElementById('amountOutput')
@@ -152,12 +200,78 @@
             let amountResult = amount /ratesInput * ratesOutput   
             amountOutput.innerHTML = `<p>${amountResult.toFixed(2)} ${deviseOutput.value}</p>`         
 
+            console.log(amountOutput)
 
         })
 
-    }
-    getAPIData()
+}
 
+getAPIData()
+
+// async function getAPIDataHistorical() {
+
+//     // ON CHERCHE TOUS LES TAUX DISPONIBLES ---> API LATEST
+//     const response = await fetch(api_url_latest)
+//     const data = await response.json();
+//     const { rates } = data;
+
+//     let ratesArray = Object.keys(rates);
+//     let valuesArray = Object.values(rates)
+
+//     let deviseMap = ratesArray.map((x,index) => (
+//         `<option key=${index} value="${x}">${x}</option>`
+//     ))
+
+//     // ON DEFINIT L'URL DE L'API POUR OBTENIR LE TAUX A UNE DATE PRECISE
+//     const API_KEY = 'fb058fd39bfd036f058bfc39683009f7'
+//     let base = ""     //GBP
+//     let symbols= ""    //USD,CAD,EUR
+//     let date = ""
+
+//     let devise_base = document.getElementById('devise_base')
+//     let devise_symbols = document.getElementById('devise_symbols')
+//     devise_base.innerHTML = deviseMap
+//     devise_symbols.innerHTML = deviseMap
+
+//     const form_histo = document.getElementById('form_histo') 
+//     let devise_date = document.getElementById('devise_date')
+
+
+//     await form_histo.addEventListener('submit', (e) => {
+//         e.preventDefault()
+//         base = devise_base.value
+//         console.log(base)
+//         date = devise_date.value
+//         console.log(date)
+//         symbols = devise_symbols.value
+//         console.log(symbols)
+//     })
+
+//     const api_url_historical= `https://api.exchangeratesapi.io/v1/${date}?access_key=${API_KEY}&base=${base}&symbols=${symbols}`
+
+//     console.log(api_url_historical)
+    
+//     const response_historical = await fetch(api_url_historical)
+//     const data_historical = await response_historical.json()
+
+//     const rates_historical = data_historical.base
+//     console.log(data_historical)
+//     let valuesArray_historical = rates_historical.value
+
+//     let resultRates = valuesArray_historical.value;
+
+//     console.log(resultRates)
+//     let resultHistorique = document.getElementById("resultHistorique")
+
+//     resultHistorique.innerHTML = resultRates;
+
+
+
+
+  
+// }
+
+//     getAPIDataHistorical()
 
 </script>
 
